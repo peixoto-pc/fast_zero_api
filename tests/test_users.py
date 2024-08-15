@@ -24,9 +24,9 @@ def test_create_user_name_already_exists(client, user):
     response = client.post(  # Action
         '/users/',
         json={
-            'username': 'Teste',
-            'email': 'alice@example.com',
-            'password': 'secret',
+            'username': user.username,
+            'email': user.email,
+            'password': user.password,
         },
     )
 
@@ -38,9 +38,9 @@ def test_create_user_email_already_exists(client, user):
     response = client.post(  # Action
         '/users/',
         json={
-            'username': 'Peixoto',
-            'email': 'teste@test.com',
-            'password': 'secret',
+            'username': 'qualquer',
+            'email': user.email,
+            'password': user.password,
         },
     )
 
@@ -66,9 +66,9 @@ def test_read_user(client, user):
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        'username': 'Teste',
-        'email': 'teste@test.com',
-        'id': 1,
+        'username': user.username,
+        'email': user.email,
+        'id': user.id,
     }
 
 
@@ -123,3 +123,26 @@ def test_read_user_not_found(client):
     response = client.get('/users/-1')
 
     assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+def test_update_user_with_wrong_user(client, other_user, token):
+    response = client.put(
+        f'/users/{other_user.id}',
+        headers={'Authorization': f'Bearer {token}'},
+        json={
+            'username': 'bob',
+            'email': 'bob@example.com',
+            'password': 'mynewpassword',
+        },
+    )
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.json() == {'detail': 'Not enough permission'}
+
+
+def test_delete_user_wrong_user(client, other_user, token):
+    response = client.delete(
+        f'/users/{other_user.id}',
+        headers={'Authorization': f'Bearer {token}'},
+    )
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.json() == {'detail': 'Not enough permission'}
