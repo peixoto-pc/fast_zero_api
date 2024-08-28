@@ -38,6 +38,9 @@ extend-exclude = ['migrations']
 preview = true
 select = ['I', 'F', 'E', 'W', 'PL', 'PT']
 
+[tool.ruff.lint.pylint]
+max-args = 10
+
 [tool.ruff.format]
 preview = true
 quote-style = 'single'

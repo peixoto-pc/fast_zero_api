@@ -1,4 +1,5 @@
 import factory
+import factory.fuzzy
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import StaticPool, create_engine
@@ -6,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from fast_zero_api.app import app
 from fast_zero_api.database import get_session
-from fast_zero_api.models import User, table_registry
+from fast_zero_api.models import Todo, TodoState, User, table_registry
 from fast_zero_api.security import get_password_hash
 
 
@@ -18,6 +19,17 @@ class UserFactory(factory.Factory):
     username = factory.Sequence(lambda n: f'test{n}')
     email = factory.LazyAttribute(lambda obj: f'{obj.username}@test.com')
     password = factory.LazyAttribute(lambda obj: f'{obj.username}@example.com')
+
+
+# fabrica de todos
+class TodoFactory(factory.Factory):
+    class Meta:
+        model = Todo
+
+    title = factory.Faker('text')
+    description = factory.Faker('text')
+    state = factory.fuzzy.FuzzyChoice(TodoState)
+    user_id = 1
 
 
 @pytest.fixture()
